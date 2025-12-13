@@ -1,7 +1,52 @@
 import streamlit as st
 import pandas as pd
- 
-st.write("""
-# My first app
-Hello *world!*
-""")
+
+def main():
+    st.header("Spreadsheet Separator App")
+
+    uploaded_file = st.file_uploader(label="Upload Excel File", accept_multiple_files=False, type=['xlsx'])
+    if uploaded_file is not None:
+        excel_file = pd.ExcelFile(uploaded_file)
+
+        list_sheet_names = excel_file.sheet_names
+        with st.expander(f"`{len(list_sheet_names)}` sheet(s) found, See Data Preview"):
+            inspected_sheet_name = st.selectbox(label="Select Sheet Name to inspect", options=list_sheet_names, index=0)
+            inspected_df = excel_file.parse(inspected_sheet_name, nrows=5)
+            st.write("First 5 rows preview:")
+            st.dataframe(inspected_df)
+
+        st.subheader("Configurations")
+
+        if len(excel_file.sheet_names)==1:
+            list_separation_option = ["1 Sheet to Many Sheets in one file", "1 Sheet to Many Files"]
+        else:
+            list_separation_option = ["1 Sheet to Many Sheets in one file", "1 Sheet to Many Files", "Many Sheets to Many Files"]
+        
+        separation_option = st.radio(label="Select Separation Option", options=list_separation_option, index=None)
+
+        if separation_option == "Many Sheets to Many Files":
+            list_sheet_names = excel_file.sheet_names
+            st.subheader("Summary")
+            st.write(len(list_sheet_names), "sheet(s) from `", uploaded_file.name,"` will be extracted into", len(list_sheet_names), "file(s).")
+            st.write("Please Proceed to continue")
+            proceed_button = st.button("Proceed", type='primary')
+
+        elif separation_option in ["1 Sheet to Many Sheets in one file", "1 Sheet to Many Files"]:
+            if len(list_sheet_names)==1:
+                selected_sheet_name = st.selectbox("Select Sheet Name to Proceed", options=list_sheet_names, index=0, disabled=True)
+            else:
+                selected_sheet_name = st.selectbox("Select Sheet Name to Proceed", options=list_sheet_names, index=None)
+
+            if selected_sheet_name is not None:
+                list_columns = excel_file.parse(selected_sheet_name, nrows=1).columns
+                selected_column = st.selectbox("Select Column to Proceed", options=list_columns, index=None)
+
+                if selected_column is not None:
+                    list_unique_entity = excel_file.parse(selected_sheet_name, usecols=[selected_column])[selected_column].unique()
+                    st.subheader("Summary")
+                    st.write("Sheet `", selected_sheet_name, "` from `", uploaded_file.name,"` will be extracted by `", selected_column, "` into", len(list_unique_entity), "file(s)." if separation_option=="1 Sheet to Many Files" else "sheet(s)")
+                    st.write("Please Proceed to continue")
+                    proceed_button = st.button("Proceed", type='primary')
+
+if __name__ == '__main__':
+    main()
