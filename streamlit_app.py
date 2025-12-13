@@ -3,8 +3,26 @@ import os
 from typing import List
 import tempfile
 import zipfile
+from datetime import datetime
 import streamlit as st
 import pandas as pd
+
+def process_one_sheet_to_many_sheets(excel_file: pd.ExcelFile, selected_sheet_name: str, selected_column: str, len_unique_entity: int) -> str:
+    progress_bar = st.progress(0, text="Extraction in progress...")
+    selected_df = excel_file.parse(selected_sheet_name)
+
+    os.makedirs("spreadsheet_separator_output/", exist_ok=True)
+
+    output_filepath = os.path.join("spreadsheet_separator_output", "output.xlsx")
+
+    with pd.ExcelWriter(output_filepath, engine='xlsxwriter') as writer:
+        for idx, (group_name, data) in enumerate(selected_df.groupby(selected_column)):
+            data.to_excel(writer, index=False, sheet_name=str(group_name))
+            progress_bar.progress(value=(idx+1)/len_unique_entity, text=f"Extraction in progress ({idx+1} out of {len_unique_entity} sheet(s))...")
+
+    progress_bar.empty()
+
+    return output_filepath
 
 def process_one_sheet_to_many_files(excel_file: pd.ExcelFile, selected_sheet_name: str, selected_column: str, len_unique_entity: int) -> str:
     progress_bar = st.progress(0, text="Extraction in progress...")
@@ -87,10 +105,12 @@ def main():
                 output_filepath = process_many_sheets_to_many_files(excel_file=excel_file)
 
                 if output_filepath is not None:
-                    st.success("Extraction Completed")
+                    st.toast("Extraction Completed", icon=":material/check:")
+                    st.balloons()
                     st.subheader("Final Output")
+                    st.write("Extraction Completed on", datetime.now())
                     with open(output_filepath, "rb") as fp:
-                        st.download_button("Download Extracted File", fp, "output.zip", mime="application/zip", on_click='ignore', type='primary')
+                        st.download_button("Download .zip", fp, "output.zip", mime="application/zip", on_click='ignore', type='primary', icon=":material/download:")
 
         elif separation_option in ["1 Sheet to Many Sheets in one file", "1 Sheet to Many Files"]:
             if len(list_sheet_names)==1:
@@ -113,12 +133,21 @@ def main():
                         if separation_option == "1 Sheet to Many Files":
                             output_filepath = process_one_sheet_to_many_files(excel_file=excel_file, selected_sheet_name=selected_sheet_name, selected_column=selected_column, len_unique_entity=len_unique_entity)
                             if output_filepath is not None:
-                                st.success("Extraction Completed")
+                                st.toast("Extraction Completed", icon=":material/check:")
+                                st.balloons()
                                 st.subheader("Final Output")
+                                st.write("Extraction Completed on", datetime.now())
                                 with open(output_filepath, "rb") as fp:
-                                    st.download_button("Download Extracted File", fp, "output.zip", mime="application/zip", on_click='ignore', type='primary')
+                                    st.download_button("Download .zip", fp, "output.zip", mime="application/zip", on_click='ignore', type='primary', icon=":material/download:")
                         else:
-                            output_filepath = ""
+                            output_filepath = process_one_sheet_to_many_sheets(excel_file=excel_file, selected_sheet_name=selected_sheet_name, selected_column=selected_column, len_unique_entity=len_unique_entity)
+                            if output_filepath is not None:
+                                st.toast("Extraction Completed", icon=":material/check:")
+                                st.balloons()
+                                st.subheader("Final Output")
+                                st.write("Extraction Completed on", datetime.now())
+                                with open(output_filepath, "rb") as fp:
+                                    st.download_button("Download .xlsx", fp, "output.xlsx", mime="application/vnd.ms-excel", on_click='ignore', type='primary', icon=":material/download:")
 
 if __name__ == '__main__':
     main()
