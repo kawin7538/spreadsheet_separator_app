@@ -1,4 +1,7 @@
 pandas
+xlsxwriter
 openpyxl
 streamlit
 pyinstaller
+faker
+tqdm
