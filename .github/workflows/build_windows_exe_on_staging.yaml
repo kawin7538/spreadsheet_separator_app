@@ -24,13 +24,13 @@ jobs:
 
       - name: Package Application with PyInstaller
         run: |
-          pyinstaller main.py --name sepreadsheet_separator_app --onedir --additional-hooks-dir=./hooks --collect-all streamlit --hidden-import "streamlit.web.cli" --add-data "streamlit_app.py;." --add-data ".streamlit/config.toml;.streamlit/" --clean --noconfirm
+          pyinstaller main.py --name staging_sepreadsheet_separator_app --onedir --additional-hooks-dir=./hooks --collect-all streamlit --hidden-import "streamlit.web.cli" --add-data "streamlit_app.py;." --add-data ".streamlit/config.toml;.streamlit/" --clean --noconfirm
 
       - name: Zip the Build
-        run: Compress-Archive -Path dist/sepreadsheet_separator_app -DestinationPath dist/sepreadsheet_separator_app.zip
+        run: Compress-Archive -Path dist/staging_sepreadsheet_separator_app -DestinationPath dist/staging_sepreadsheet_separator_app.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Windows-App-Zip
-          path: dist/winsepreadsheet_separator_appows.zip
+          path: dist/staging_sepreadsheet_separator_app.zip

@@ -33,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Windows-App-Zip
-          path: dist/winsepreadsheet_separator_appows.zip
+          path: dist/sepreadsheet_separator_app.zip
