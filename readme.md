@@ -9,4 +9,4 @@
 `streamlit run streamlit_app.py`
 
 ## How to convert to exe
-`pyinstaller main.py --onedir --additional-hooks-dir=./hooks --collect-all streamlit --hidden-import "streamlit.web.cli" --add-data "streamlit_app.py;." --clean --noconfirm --console`
+`pyinstaller main.py --onedir --additional-hooks-dir=./hooks --collect-all streamlit --hidden-import "streamlit.web.cli" --add-data "streamlit_app.py;." --add-data ".streamlit/config.toml;.streamlit/" --clean --noconfirm`
