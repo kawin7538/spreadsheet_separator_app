@@ -1,5 +1,33 @@
+import io
+import os
+import tempfile
+import zipfile
 import streamlit as st
 import pandas as pd
+
+def process_many_sheets_to_many_files(excel_file: pd.ExcelFile) -> str:
+    progress_bar = st.progress(0, text="Extraction in progress...")
+    list_sheet_names = excel_file.sheet_names
+
+    os.makedirs("spreadsheet_separator_output/", exist_ok=True)
+
+    output_filepath = os.path.join("spreadsheet_separator_output", "output.zip")
+
+    with zipfile.ZipFile(output_filepath, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+
+        for idx in range(len(list_sheet_names)):
+            selected_df = excel_file.parse(list_sheet_names[idx])
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer) as writer:
+                selected_df.to_excel(writer, index=False, sheet_name=list_sheet_names[idx])
+
+            zf.writestr(f"{list_sheet_names[idx].replace("/", "_")}.xlsx", buffer.getvalue())
+
+            progress_bar.progress(value=(idx+1)/len(list_sheet_names), text=f"Extraction in progress ({idx+1} out of {len(list_sheet_names)} sheet(s))...")
+
+    progress_bar.empty()
+
+    return output_filepath
 
 def main():
     st.header("Spreadsheet Separator App")
@@ -30,6 +58,15 @@ def main():
             st.write(len(list_sheet_names), "sheet(s) from `", uploaded_file.name,"` will be extracted into", len(list_sheet_names), "file(s).")
             st.write("Please Proceed to continue")
             proceed_button = st.button("Proceed", type='primary')
+
+            if proceed_button:
+                output_filepath = process_many_sheets_to_many_files(excel_file=excel_file)
+
+                if output_filepath is not None:
+                    st.success("Extraction Completed")
+                    st.subheader("Final Output")
+                    with open(output_filepath, "rb") as fp:
+                        st.download_button("Download Extracted File", fp, "output.zip", mime="application/zip", on_click='ignore', type='primary')
 
         elif separation_option in ["1 Sheet to Many Sheets in one file", "1 Sheet to Many Files"]:
             if len(list_sheet_names)==1:
