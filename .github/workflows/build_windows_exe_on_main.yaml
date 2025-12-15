@@ -1,8 +1,9 @@
-name: Package Application with PyInstaller
+name: Build and Release app with pyinstaller
 on:
   push:
     branches:
       - main
+
 jobs:
   build:
     runs-on: windows-latest
@@ -26,11 +27,39 @@ jobs:
         run: |
           pyinstaller main.py --name sepreadsheet_separator_app --onedir --additional-hooks-dir=./hooks --collect-all streamlit --hidden-import "streamlit.web.cli" --add-data "streamlit_app.py;." --add-data ".streamlit/config.toml;.streamlit/" --clean --noconfirm
 
-      - name: Zip the Build
-        run: Compress-Archive -Path dist/sepreadsheet_separator_app -DestinationPath dist/sepreadsheet_separator_app.zip
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-App-Zip
-          path: dist/sepreadsheet_separator_app.zip
+          name: build-files
+          path: dist/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files  # Must match the name in Job 1
+          path: dist
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOW=$(date +'%Y-%m-%d-%H-%M')
+          
+          # Zip the downloaded folder
+          zip -r release-$NOW.zip dist/
+
+          # Create release and upload the zip
+          gh release create "v$NOW" \
+            --title "Release $NOW" \
+            --generate-notes \
+            ./release-$NOW.zip
