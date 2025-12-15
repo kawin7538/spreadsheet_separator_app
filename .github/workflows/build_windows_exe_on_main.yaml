@@ -31,7 +31,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-files
-          path: dist/
+          include-hidden-files: true
+          path: dist/sepreadsheet_separator_app/
 
   release:
     needs: build
@@ -47,7 +48,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-files  # Must match the name in Job 1
-          path: dist
+          path: dist/sepreadsheet_separator_app
 
       - name: Create Release
         env:
@@ -56,7 +57,7 @@ jobs:
           NOW=$(date +'%Y-%m-%d-%H-%M')
           
           # Zip the downloaded folder
-          zip -r release-$NOW.zip dist/
+          zip -r release-$NOW.zip dist/sepreadsheet_separator_app/
 
           # Create release and upload the zip
           gh release create "v$NOW" \
