@@ -116,9 +116,8 @@ def main():
 
                 if output_filepath is not None:
                     st.toast("Extraction Completed", icon=":material/check:")
-                    st.balloons()
                     st.subheader("Final Output")
-                    st.write("Extraction Completed on", datetime.now())
+                    st.write("Extraction Completed at", datetime.now())
                     with open(output_filepath, "rb") as fp:
                         st.download_button("Download .zip", fp, "output.zip", mime="application/zip", on_click='ignore', type='primary', icon=":material/download:")
 
@@ -146,18 +145,16 @@ def main():
                             output_filepath = process_one_sheet_to_many_files(uploaded_file, selected_sheet_name, selected_column, len_unique_entity)
                             if output_filepath is not None:
                                 st.toast("Extraction Completed", icon=":material/check:")
-                                st.balloons()
                                 st.subheader("Final Output")
-                                st.write("Extraction Completed on", datetime.now())
+                                st.write("Extraction Completed at", datetime.now())
                                 with open(output_filepath, "rb") as fp:
                                     st.download_button("Download .zip", fp, "output.zip", mime="application/zip", on_click='ignore', type='primary', icon=":material/download:")
                         else:
                             output_filepath = process_one_sheet_to_many_sheets(uploaded_file, selected_sheet_name, selected_column, len_unique_entity)
                             if output_filepath is not None:
                                 st.toast("Extraction Completed", icon=":material/check:")
-                                st.balloons()
                                 st.subheader("Final Output")
-                                st.write("Extraction Completed on", datetime.now())
+                                st.write("Extraction Completed at", datetime.now())
                                 with open(output_filepath, "rb") as fp:
                                     st.download_button("Download .xlsx", fp, "output.xlsx", mime="application/vnd.ms-excel", on_click='ignore', type='primary', icon=":material/download:")
 
