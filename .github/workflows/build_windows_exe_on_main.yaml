@@ -25,7 +25,7 @@ jobs:
 
       - name: Package Application with PyInstaller
         run: |
-          pyinstaller main.py --name sepreadsheet_separator_app --onedir --additional-hooks-dir=./hooks --collect-all streamlit --hidden-import "streamlit.web.cli" --add-data "streamlit_app.py;." --add-data ".streamlit/config.toml;.streamlit/" --clean --noconfirm
+          pyinstaller main.py --name sepreadsheet_separator_app --onedir --additional-hooks-dir=./hooks --collect-all streamlit --hidden-import "streamlit.web.cli" --hidden-import "fastexcel" --add-data "streamlit_app.py;." --add-data ".streamlit/config.toml;.streamlit/" --clean --noconfirm
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
