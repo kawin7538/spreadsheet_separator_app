@@ -1,4 +1,4 @@
-name: Package Application with PyInstaller
+name: Package Application with PyInstaller on Staging
 on:
   push:
     branches:
@@ -34,3 +34,4 @@ jobs:
         with:
           name: Windows-App-Zip
           path: dist/staging_sepreadsheet_separator_app.zip
+          retention-days: 14
