@@ -1,6 +1,7 @@
-pandas
+polars
+python-calamine
+fastexcel
 xlsxwriter
-openpyxl
 streamlit
 pyinstaller
 faker
